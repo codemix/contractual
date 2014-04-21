@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "obligations": "0.0.1",
-    "contractual": "0.0.1",
+    "contractual": "0.0.3",
     "codemirror": "~4.0.3"
   },
   "devDependencies": {
