@@ -1,4 +1,5 @@
-var estraverse = require('estraverse');
+var estraverse = require('estraverse'),
+    sideEffects = require('../side-effects');
 
 module.exports = postcondition;
 
@@ -8,6 +9,10 @@ function postcondition (ast, options) {
     ast.body.type === 'BlockStatement';
     options && typeof options === 'object';
   main:
+    var effects = sideEffects(ast);
+    if (effects.length) {
+      throw new ContractError('Precondition contains side-effects! ', effects[0]);
+    }
     return removeLabel(options, estraverse.replace(ast, {
       enter: enter.bind(null, options)
     }));
