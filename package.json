@@ -1,0 +1,10 @@
+{
+  "name": "contractual-ghpages",
+  "version": "0.0.0",
+  "description": "Github pages for Contractual",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}
