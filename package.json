@@ -1,8 +1,11 @@
 {
   "name": "contractual",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Syntactic sugar for Design by contract in JavaScript.",
   "main": "lib/index.js",
+  "bin": {
+    "contractual": "./bin/contractual"
+  },
   "scripts": {
     "test": "make -C ./ test"
   },
