@@ -1,6 +1,6 @@
 {
   "name": "contractual",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Syntactic sugar for Design by contract in JavaScript.",
   "main": "lib/index.js",
   "scripts": {
