@@ -109,10 +109,9 @@ function createVarStatement (options, ast, addCompleted) {
         init: null
       }
     ],
-    kind: 'var',
-    leadingComments: ast.leadingComments,
-    trailingComments: ast.trailingComments
+    kind: 'var'
   };
+
   if (addCompleted) {
     statement.declarations.push({
       type: 'VariableDeclarator',
@@ -122,6 +121,10 @@ function createVarStatement (options, ast, addCompleted) {
       },
       init: null
     });
+  }
+  else {
+    statement.leadingComments = ast.leadingComments;
+    statement.trailingComments = ast.trailingComments;
   }
   return statement;
 }
