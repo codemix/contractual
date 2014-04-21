@@ -12,7 +12,7 @@ function postcondition (ast, options) {
   main:
     var effects = sideEffects(ast);
     if (effects.length) {
-      throw new ContractError('Precondition contains side-effects! ', effects[0]);
+      throw new ContractError('Postcondition contains side-effects! ', effects[0]);
     }
     return removeLabel(options, estraverse.replace(ast, {
       enter: enter.bind(null, options)
