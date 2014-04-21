@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-
-
-var LIB = require('../lib');
-
-LIB.cli.run(process.argv.slice(1));
