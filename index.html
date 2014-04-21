@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Syntactic sugar for Design by contract in JavaScript.">
+    <title>
+        Contractual - Design by contract for JavaScript.
+    </title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <header class="navbar navbar-inverse navbar-static-top" id="top" role="banner">
+      <div class="container">
+        <div class="navbar-header">
+          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a href="./index.html" class="navbar-brand">Contractual</a>
+        </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+          <ul class="nav navbar-nav">
+            <li>
+              <a href="./index.html#what">What?</a>
+            </li>
+            <li>
+              <a href="./index.html#why">Why?</a>
+            </li>
+            <li>
+              <a href="./index.html#how">How?</a>
+            </li>
+            <li>
+              <a href="./try.html">Try!</a>
+            </li>
+            <li>
+              <a href="./index.html#usage">Use!</a>
+            </li>
+            <li>
+              <a href="https://github.com/codemix/contractual">Github</a>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://codemix.com/">codemix</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 col-lg-offset-1 col-sm-12">
+          <header class="jumbotron">
+            <h1>Contractual</h1>
+            <p>Unobtrusive, backwards compatible syntactic sugar for <a href="http://en.wikipedia.org/wiki/Design_by_contract" target="_blank">Design by contract</a> in JavaScript.</p>
+          </header>
+          <article id="what">
+            <h1>What?</h1>
+            <p class="lead">Design by contract is a very powerful technique for writing robust software, it can be thought of as a formal but convenient method for specifying assertions.</p>
+            <p>Instead of the developer documenting their assumptions in comments, or worse, not documenting them at all, DbyC gives them a way to express their assumptions in a convenient syntax, and have those assumptions validated at runtime.</p>
+            <p>Contractual is a transpiler, that takes Contractual JavaScript and turns it into JavaScript which enforces the contracts.</p>
+            <p>In Contractual, there are two types of contract, <a href="http://en.wikipedia.org/wiki/Precondition" target="_blank">preconditions</a> and <a href="http://en.wikipedia.org/wiki/Postcondition" target="_blank">postconditions</a>.</p>
+            <p><strong>Preconditions are evaluated before the main function body</strong>, they are typically used to validate arguments to the function, or the state of the system.</p>
+            <p><strong>Postconditions are evaluated after the main function body completes</strong>, they are typically used to validate the return value of the function, or any side effects that the function caused.</p>
+            <p><strong>Neither preconditions nor postconditions themselves may have side-effects</strong>, for instance it is not possible to increment a variable, or assign a new value from within a contract.</p>
+            <aside class="alert alert-warning">
+              <p>Purity within contracts is enforced as much as possible by the Contractual compiler, but it is possible for the developer to circumvent, by calling another function which causes side effects.
+              <strong>This is strongly discouraged.</strong>
+              </p>
+            </aside>
+
+          </article>
+          <article id="why">
+            <h1>Why?</h1>
+            <p class="lead">Because Design by contract leads to better software which is easier to maintain.</p>
+            <p>JavaScript gives developers many opportunities to shoot themselves in the foot, and this is a way to help keep their toes intact.</p>
+            <p><strong>DbyC can enforce an even greater level of safety than even the most stringent type system.</strong></p>
+          </article>
+
+          <article id="how">
+            <h1>How it works</h1>
+            <p class="lead">Contractual abuses two quirks of the JavaScript language to implement a convenient backwards compatible syntax.</p>
+            <ol>
+              <li>
+                <h4>Results of expressions do not <em>have</em> to be used.</h4>
+                <p>This means that the following code is valid:</p>
+<pre>
+function myfun (a) {
+  a > 10;
+}
+</pre>
+                <p>In this example, when <code>myfun()</code> is called the JavaScript engine will evaluate the <code>a > 10</code> expression but silently discard the result.</p>
+              </li>
+              <li>
+                <h4>Labels can appear anywhere in a function body, and they also do not <em>have</em> to be used.</h4>
+                <p>This means that the following code is valid:</p>
+<pre>
+function myotherfun (a) {
+  foo:
+  return a * a;
+}
+</pre>
+                <p>In this example, when <code>myotherfun()</code> is called, the JavaScript engine will simply ignore the <code>foo</code> label (but not the label body!) and behave as if it doesn't exist.</p>
+              </li>
+            </ol>
+            <br><br>
+            <p>Contractual combines these quirks to offer a simple syntax for specifying preconditions and postconditions.</p>
+
+<pre>
+function divide (a, b) {
+  pre:
+    typeof a === 'number';
+    typeof b === 'number';
+    b !== 0, 'May not divide by zero';
+  main:
+    return a / b;
+  post:
+    __result < a;
+}
+
+alert(divide(10, 0));
+</pre>
+            <p>This is normal, valid JavaScript. If you execute it without compiling it with Contractual, it will still behave just as normal, but the contracts will not be enforced.</p>
+            <p>In default mode, Contractual will compile the above code into:</p>
+<pre>
+var OBLIGATIONS = require('obligations');
+function divide(a, b) {
+    OBLIGATIONS.precondition(typeof a === 'number');
+    OBLIGATIONS.precondition(typeof b === 'number');
+    OBLIGATIONS.precondition(b !== 0, 'May not divide by zero');
+    var __result;
+    __result = a / b;
+    OBLIGATIONS.postcondition(__result < a);
+    return __result;
+}
+alert(divide(10, 0));
+</pre>
+            <p>Now the <code>alert()</code> call in the above code will result in a <code>PreconditionError</code>.</p>
+
+            <pre>PreconditionError: May not divide by zero</pre>
+
+            <a href="./try.html" class="btn btn-primary">Try it</a>
+            <br><br>
+            <aside class="alert alert-info"><strong>Note:</strong> Contractual allows customization of many aspects of the generated code, you can change the library name, use a global object instead, change the names of generated variables etc.</aside>
+          </article>
+          <article id="download">
+            <h1>Download / Install</h1>
+            <p>Install Contractual from <a href="https://npmjs.org/package/contractual" target="_blank">npm</a>:</p>
+            <pre>npm install -g contractual</pre>
+            <p>You may also download the source from <a href="https://github.com/codemix/contractual/releases">github</a>.</p>
+            <p>If you download the source from github, don't forget to install the dependencies after extracting the archive: <code>npm install</code></p>
+          </article>
+          <article id="usage">
+            <h1>Usage</h1>
+            <p>It's possible to use Contractual programatically, but most functionality is exposed via a command line interface.</p>
+<pre>
+> contractual --help
+</pre>
+<pre>
+contractual - Syntactic sugar for Design by contract in JavaScript.
+
+Usage: contractual [OPTIONS] [FILES]
+
+Options:
+  --output, -o   The directory to write compiled files to.                             [default: "./out"]
+  --libname, -l  The name of the identifier for the obligations library                [default: "OBLIGATIONS"]
+  --global, -g   Whether a global identifier should be used for the obligations lib.   [default: false]
+  --require, -r  The obligations library to require, if `global` is not specified.     [default: "obligations"]
+  --version, -v  Show the version information.
+  --help, -h     Show this help screen.
+</pre>
+            <h3>Compile a directory</h3>
+            <p>Compile all the Contractual JavaScript files in the <code>src</code> directory to the <code>lib</code> directory:</p>
+<pre>
+> contractual -o ./lib ./src
+</pre>
+
+            <h3>Use a global identifier</h3>
+            <p>If you're targetting the browser, you might prefer to use a global reference to the obligations library, rather than requiring it separately at the top of each file. Using the <code>global</code> flag instructs Contractual to omit the generated <code>require</code> statements.</p>
+<pre>
+> contractual -g -o ./lib ./src
+</pre>
+            <h3>Using a different obligations library</h3>
+            <p>Contractual uses the tiny <a href="https://github.com/codemix/obligations">obligations</a> library by default. If you'd like to use a different library, you can specify its name using the <code>require</code> flag.</p>
+<pre>
+> contractual --require=mylib -o ./lib ./src
+</pre>
+
+
+            <h3>Changing the name of the obligations identifier</h3>
+            <p>By default Contractual accesses the obligations library under the name <code>OBLIGATIONS</code>, which is pretty ugly but likely to be unique in a code base. If you'd like to use a different identifier, use the <code>libname</code> flag.</p>
+<pre>
+> contractual --libname=contracts -o ./lib ./src
+</pre>
+
+            <p>The above will generate preconditions that look like <code>contracts.precondition(...)</code> rather than <code>OBLIGATIONS.precondition(...)</code> etc.</p>
+          </article>
+          <article id="license">
+            <h1>MIT Licensed</h1>
+            <p>Contractual is licensed under the MIT license, it's free for any use, even commercial, see <a href="https://github.com/codemix/contractual/blob/master/LICENSE.md">the full license</a>.</p>
+          </article>
+          <br><br><br><br><br><br><br><br><br><br><br>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

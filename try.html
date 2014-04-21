@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Syntactic sugar for Design by contract in JavaScript.">
+    <title>
+        Contractual - Design by contract for JavaScript.
+    </title>
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="./css/codemirror.css" rel="stylesheet">
+    <link href="./css/monokai.css" rel="stylesheet">
+  </head>
+  <body>
+    <header class="navbar navbar-inverse navbar-static-top" id="top" role="banner">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a href="./index.html" class="navbar-brand">Contractual</a>
+        </div>
+        <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+          <ul class="nav navbar-nav">
+            <li>
+              <a href="./index.html#what">What?</a>
+            </li>
+            <li>
+              <a href="./index.html#why">Why?</a>
+            </li>
+            <li>
+              <a href="./index.html#how">How?</a>
+            </li>
+            <li class="active">
+              <a href="./try.html">Try!</a>
+            </li>
+            <li>
+              <a href="./index.html#usage">Use!</a>
+            </li>
+            <li>
+              <a href="https://github.com/codemix/contractual">Github</a>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://codemix.com/">codemix</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <div class="container-fluid">
+      <header class="page-header">
+        <h1>Try Contractual</h1>
+        <p class="lead">Syntactic sugar for Design by contract in JavaScript.</p>
+      </header>
+      <div class="row">
+        <section class="col-sm-6">
+          <h4>Input</h4>
+          <textarea id="input" class="form-control" cols=50 rows=30>
+function divide (a, b) {
+  pre:
+    typeof a === 'number';
+    typeof b === 'number';
+    b !== 0, 'May not divide by zero';
+  main:
+    return a / b;
+  post:
+    __result < a;
+}
+
+alert(divide(10, 0));
+</textarea>
+          <aside id="errorMessage" class="alert"></aside>
+        </section>
+        <section class="col-sm-6">
+          <button id="runner" class="btn btn-default pull-right">Run</button>
+          <h4>Output</h4>
+          <textarea id="output" class="form-control" cols=50 rows=30></textarea>
+
+        </section>
+      </div>
+    </div>
+    <script src="./lib/jquery-2.1.0.min.js"></script>
+    <script src="./lib/bootstrap.min.js"></script>
+    <script src="./lib/index.js"></script>
+    <script src="./lib/codemirror-modes/javascript/javascript.js"></script>
+  </body>
+</html>
