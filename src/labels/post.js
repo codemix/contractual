@@ -1,5 +1,6 @@
 var estraverse = require('estraverse'),
-    sideEffects = require('../side-effects');
+    sideEffects = require('../side-effects'),
+    ContractError = require('../error');
 
 module.exports = postcondition;
 
