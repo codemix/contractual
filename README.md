@@ -42,6 +42,8 @@ Importantly, since the original source code is both valid JavaScript and semanti
 
   If we call this function with a non string argument, a `PreconditionError` will be thrown.
 
+  [See the compiled output.](./examples/compiled/precondition.js)
+
 
 2. **Postcondition Only.**
 
@@ -66,6 +68,8 @@ Importantly, since the original source code is both valid JavaScript and semanti
 
   If we call this function without arguments, the post-condition will fail and a `PostconditionError` will be thrown.
 
+  [See the compiled output.](./examples/compiled/postcondition.js)
+
 3. **Preconditions and Postconditions.**
 
   In this example the precondition specifies that both arguments are numbers and that the second argument is not zero.
@@ -83,6 +87,8 @@ Importantly, since the original source code is both valid JavaScript and semanti
       __result < a;
   }
   ```
+
+  [See the compiled output.](./examples/compiled/both.js)
 
 4. **Error Messages**
 
@@ -102,6 +108,8 @@ Importantly, since the original source code is both valid JavaScript and semanti
   ```
 
   Now if a contract fails, the error object will have a descriptive message.
+
+  [See the compiled output.](./examples/compiled/error-messages.js)
 
 ## Installation
 
