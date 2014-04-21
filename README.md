@@ -1,5 +1,7 @@
 # Contractual
 
+[![Build Status](https://travis-ci.org/codemix/contractual.svg?branch=master)](https://travis-ci.org/codemix/contractual)
+
 Unobtrusive, backwards compatible syntactic sugar for [Design by contract](http://en.wikipedia.org/wiki/Design_by_contract) in JavaScript.
 
 Design by contract is a very powerful technique for writing robust software, it can be thought of as a formal but convenient method for specifying assertions. Instead of the developer documenting their assumptions in comments, or worse, not documenting them at all, DbyC gives them a way to express their assumptions in a convenient syntax, and have those assumptions validated at runtime.
