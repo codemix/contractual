@@ -14,4 +14,4 @@ examples:
 		--output ./examples/compiled \
 		./examples/src
 
-.PHONY: test coverage examples
+.PHONY: test coverage examples lib
