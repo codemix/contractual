@@ -95,6 +95,23 @@ Importantly, since the original source code is both valid JavaScript and semanti
 
   [See the compiled output.](./examples/compiled/both.js)
 
+4. **Invariants**
+
+  Invariants run at the beginning and end of a function.
+
+  ```js
+  function spend (amount) {
+    invariant:
+      typeof amount === 'number', "First argument must be a number";
+      this.balance >= 0, 'Cannot go overdrawn';
+    main:
+      this.balance = this.balance - amount;
+      return this.balance;
+  }
+  ```
+
+  [See the compiled output.](./examples/compiled/invariant.js)
+
 4. **Error Messages**
 
   Often it's nice to provide an error message for the contract that failed, for example:
@@ -108,7 +125,7 @@ Importantly, since the original source code is both valid JavaScript and semanti
     main:
       return a / b;
     post:
-      __result < a, "Result must always be less than the first argument";
+      __result =< a, "Result must always be less than or equal to the first argument";
   }
   ```
 
