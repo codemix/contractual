@@ -3,7 +3,8 @@ var estraverse = require('estraverse');
 var defaults = {
   pre: require('./labels/pre'),
   post: require('./labels/post'),
-  main: require('./labels/main')
+  main: require('./labels/main'),
+  invariant: require('./labels/invariant')
 };
 
 /**
@@ -14,7 +15,7 @@ var defaults = {
  * @return {Object}         The processed AST.
  */
 exports.process = function (ast, options) {
-  pre:
+  invariant:
     ast && typeof ast === 'object';
   main:
     options = options || {};
@@ -27,7 +28,6 @@ exports.process = function (ast, options) {
     return processProgram(ast, options);
   post:
     __result && typeof __result === 'object';
-    __result.type === ast.type;
 };
 
 /**
@@ -241,7 +241,7 @@ function processFunctionBody (ast, options) {
     return estraverse.replace(ast, {
       enter: function (node) {
         if (node.type === 'BlockStatement') {
-          return processBlockStatement(node, options);
+          return processBlockStatement(node, ast, options);
         }
       }
     });
@@ -254,13 +254,16 @@ function processFunctionBody (ast, options) {
  * Process a block statement in a function body, after labels have been collected.
  *
  * @param  {Object} ast     The `BlockStatement` to process.
+ * @param  {Object} parent  The `FunctionExpression` or `FunctionDeclaration` that contains the block.
  * @param  {Object} options The options for the processor.
  * @return {Object}         The processed node.
  */
-function processBlockStatement (ast, options) {
+function processBlockStatement (ast, parent, options) {
   pre:
     ast && typeof ast === 'object';
     ast.type === 'BlockStatement';
+    parent && typeof parent === 'object';
+    parent.type === 'FunctionDeclaration' || parent.type === 'FunctionExpression';
     options && typeof options === 'object';
     typeof options.supported === 'object';
   main:
@@ -276,7 +279,7 @@ function processBlockStatement (ast, options) {
       },
       leave: function (node) {
         if (node === ast) {
-          return processLabels(ast, options, labels);
+          return processLabels(ast, parent, labels, options);
         }
       }
     });
@@ -289,14 +292,18 @@ function processBlockStatement (ast, options) {
  * Process a list of labels that are contained within the given `BlockStatement`.
  *
  * @param  {Object}   ast     The `BlockStatement` that contains the labels.
- * @param  {Object}   options The options for the processor.
+ * @param  {Object}   parent  The `FunctionExpression` or `FunctionDeclaration` that contains the label.
  * @param  {Object}   labels  The labels to process.
+ * @param  {Object}   options The options for the processor.
  * @return {Object}           The processed AST.
  */
-function processLabels (ast, options, labels) {
+function processLabels (ast, parent, labels, options) {
   pre:
     ast && typeof ast === 'object';
     ast.type === 'BlockStatement';
+    labels && typeof labels === 'object';
+    parent && typeof parent === 'object';
+    parent.type === 'FunctionDeclaration' || parent.type === 'FunctionExpression';
     options && typeof options === 'object';
     typeof options.supported === 'object';
   main:
@@ -309,7 +316,7 @@ function processLabels (ast, options, labels) {
       label = labels[key];
       index = ast.body.indexOf(label);
       if (~index) {
-        ast.body.splice.apply(ast.body, [index, 1].concat(processLabel(label, options, labels)));
+        ast.body.splice.apply(ast.body, [index, 1].concat(processLabel(label, labels, parent, options)));
       }
     }
     return ast;
@@ -321,19 +328,22 @@ function processLabels (ast, options, labels) {
  * Process a magic label.
  *
  * @param  {Object}     ast     The `LabeledStatement` to process.
- * @param  {Object}     options The options for the processor.
  * @param  {Object}     labels  The map of label names to labels.
+ * @param  {Object}     parent  The `FunctionExpression` or `FunctionDeclaration` that contains the label.
+ * @param  {Object}     options The options for the processor.
  * @return {Object[]}           The nodes that should be injected in place of the `LabeledStatement`.
  */
-function processLabel (ast, options, labels) {
+function processLabel (ast, labels, parent, options) {
   pre:
     ast.type === 'LabeledStatement';
     ast.body.type === 'BlockStatement';
+    parent && typeof parent === 'object';
+    parent.type === 'FunctionDeclaration' || parent.type === 'FunctionExpression';
     options && typeof options === 'object';
     typeof options.supported === 'object';
   main:
     if (typeof options.supported[ast.label.name] === 'function') {
-      return options.supported[ast.label.name](ast, options, labels);
+      return options.supported[ast.label.name](ast, options, labels, parent);
     }
     else {
       return ast.body.body;

@@ -21,12 +21,13 @@ function main (ast, options, labels) {
     options.resultIdentifier;
   }
   main: {
-    if (!labels.post) {
+    if (!labels.post && !labels.invariant) {
       return ast.body.body;
     }
 
     var returns = [],
         canOptimise = false;
+
     estraverse.traverse(ast, {
       enter: function (node, parent) {
         if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
@@ -37,7 +38,8 @@ function main (ast, options, labels) {
         }
       }
     });
-    return processLabel(ast, options, returns);
+    var processed = processLabel(ast, options, returns);
+    return processed;
   }
   post: {
     Array.isArray(__result);
@@ -45,7 +47,7 @@ function main (ast, options, labels) {
 };
 
 function processLabel (node, options, returns) {
-  var canOptimise = returns.length === 1 && returns[0][1] === node.body,
+  var canOptimise = returns.length === 0 || (returns.length === 1 && returns[0][1] === node.body),
       contents = [];
 
   if (returns.length) {
@@ -53,10 +55,7 @@ function processLabel (node, options, returns) {
       replaceReturnStatement(options, item[0], item[1], !canOptimise);
     });
   }
-  if (!canOptimise) {
-    node.body = createIfStatement(node, options);
-  }
-  contents.push(createVarStatement(options, node, !canOptimise));
+  contents.push(createVarStatement(options, node));
   if (canOptimise) {
     contents = contents.concat(node.body.body);
   }
@@ -88,7 +87,6 @@ function createIfStatement (node, options) {
 function replaceReturnStatement (options, node, parent, addBreak) {
   var args = [createInterimExpressionStatement(options, node)];
   if (addBreak) {
-    args.push(createCompletedExpressionStatement(options, node));
     args.push(createBreakStatement(options));
   }
   utils.replaceInParent(node, parent, args);
@@ -112,20 +110,9 @@ function createVarStatement (options, ast, addCompleted) {
     kind: 'var'
   };
 
-  if (addCompleted) {
-    statement.declarations.push({
-      type: 'VariableDeclarator',
-      id: {
-        type: 'Identifier',
-        name: options.completedIdentifier
-      },
-      init: null
-    });
-  }
-  else {
-    statement.leadingComments = ast.leadingComments;
-    statement.trailingComments = ast.trailingComments;
-  }
+  statement.leadingComments = ast.leadingComments;
+  statement.trailingComments = ast.trailingComments;
+
   return statement;
 }
 
@@ -151,28 +138,6 @@ function createInterimExpressionStatement (options, node) {
   };
 }
 
-function createCompletedExpressionStatement (options, node) {
-  return {
-    type: 'ExpressionStatement',
-    expression: {
-      type: 'AssignmentExpression',
-      operator: '=',
-      left: {
-        type: 'Identifier',
-        name: options.completedIdentifier
-      },
-      right: {
-        type: 'Literal',
-        value: true,
-        raw: 'true'
-      }
-    },
-    range: node.range,
-    loc: node.loc,
-    leadingComments: node.leadingComments,
-    trailingComments: node.trailingComments
-  };
-}
 
 function createBreakStatement (options) {
   return {
