@@ -21,7 +21,7 @@
     "escodegen": "~1.3.2",
     "yargs": "~1.2.1",
     "mkdirp": "~0.3.5",
-    "obligations": "0.0.1"
+    "obligations": "0.0.2"
   },
   "devDependencies": {
     "expect.js": "~0.3.1",

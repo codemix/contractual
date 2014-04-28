@@ -21,12 +21,13 @@ function main (ast, options, labels) {
     options.resultIdentifier;
   }
   main: {
-    if (!labels.post) {
+    if (!labels.post && !labels.invariant) {
       return ast.body.body;
     }
 
     var returns = [],
         canOptimise = false;
+
     estraverse.traverse(ast, {
       enter: function (node, parent) {
         if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
@@ -37,7 +38,8 @@ function main (ast, options, labels) {
         }
       }
     });
-    return processLabel(ast, options, returns);
+    var processed = processLabel(ast, options, returns);
+    return processed;
   }
   post: {
     Array.isArray(__result);

@@ -2,9 +2,9 @@ var estraverse = require('estraverse'),
     sideEffects = require('../side-effects'),
     ContractError = require('../error');
 
-module.exports = postcondition;
+module.exports = invariant;
 
-function postcondition (ast, options, labels, func) {
+function invariant (ast, options, labels, func) {
   pre:
     ast.type === 'LabeledStatement';
     ast.body.type === 'BlockStatement';
@@ -12,29 +12,42 @@ function postcondition (ast, options, labels, func) {
   main:
     var effects = sideEffects(ast);
     if (effects.length) {
-      throw new ContractError('Postcondition contains side-effects! ', effects[0]);
+      throw new ContractError('Invariant contains side-effects! ', effects[0]);
     }
 
-    func.body.body.push(createReturnStatement(options));
-
-    return estraverse.replace(ast, {
+    estraverse.replace(ast, {
       enter: enter.bind(null, options)
-    })
-    .body.body;
+    });
+    var body = ast.body.body,
+        first = body[0];
+    if (!first) {
+      first = {type: 'EmptyStatement'};
+      body.unshift(first);
+    }
+    if (ast.leadingComments) {
+      first.leadingComments = ast.leadingComments.concat(first.leadingComments || []);
+    }
+
+    func.body.body.push.apply(func.body.body, body);
+
+    return body;
   post:
     Array.isArray(__result);
 };
 
 function enter (options, node, parent) {
   var statement;
-  if (node.type === 'ExpressionStatement') {
+  if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
+    this.skip();
+  }
+  else if (node.type === 'ExpressionStatement') {
     statement = {
       type: 'ExpressionStatement',
       expression: {
         type: 'CallExpression',
         callee: {
           type: 'Identifier',
-          name: options.libIdentifier + '.postcondition'
+          name: options.libIdentifier + '.invariant'
         },
         arguments: []
       },
@@ -48,23 +61,5 @@ function enter (options, node, parent) {
       statement.expression.arguments.push(node.expression);
     }
     return statement;
-  }
-}
-
-
-
-function removeLabel (options, ast) {
-  var body = ast.body.body;
-  return body.concat(createReturnStatement(options));
-}
-
-
-function createReturnStatement (options) {
-  return {
-    type: 'ReturnStatement',
-    argument: {
-      type: 'Identifier',
-      name: options.resultIdentifier
-    }
   }
 }
