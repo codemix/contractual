@@ -6,10 +6,11 @@ Unobtrusive, backwards compatible syntactic sugar for [Design by contract](http:
 
 Design by contract is a very powerful technique for writing robust software, it can be thought of as a formal but convenient method for specifying assertions. Instead of the developer documenting their assumptions in comments, or worse, not documenting them at all, DbyC gives them a way to express their assumptions in a convenient syntax, and have those assumptions validated at runtime.
 
-In Contractual, contracts come in two flavours:
+In Contractual, contracts come in three flavours:
 
 - **[preconditions](http://en.wikipedia.org/wiki/Precondition)** which run at the start of a function.
 - **[postconditions](http://en.wikipedia.org/wiki/Postcondition)** which run at the end of a function.
+- **[invariants](http://en.wikipedia.org/wiki/Invariant_\(computer_science\))** which run at both the start and end of the function.
 
 Each statement in a contract must evaluate to true for the contract to be valid. If a contract fails, an error will be thrown.
 
@@ -17,7 +18,9 @@ Preconditions are usually used to validate the arguments to a function, or the s
 
 Postconditions are used to validate the result of the function.
 
-Neither preconditions or postconditions themselves may have side-effects, e.g. it is not possible to assign a new value to a variable from within a contract.
+Invariants are used to ensure that an assumption holds true for the duration of the function.
+
+Neither invariants, preconditions or postconditions themselves may have side-effects, e.g. it is not possible to assign a new value to a variable from within a contract.
 
 > Purity within contracts is enforced as much as possible by the contractual compiler, but it is still possible for a programmer to circumvent, by calling an impure function from within the precondition or postcondition. **This is strongly discouraged.**
 
