@@ -30,6 +30,8 @@ function invariant (ast, options, labels, func) {
 
     func.body.body.push.apply(func.body.body, body);
 
+    func.body.body.push(createReturnStatement(options));
+
     return body;
   post:
     Array.isArray(__result);
@@ -61,5 +63,15 @@ function enter (options, node, parent) {
       statement.expression.arguments.push(node.expression);
     }
     return statement;
+  }
+}
+
+function createReturnStatement (options) {
+  return {
+    type: 'ReturnStatement',
+    argument: {
+      type: 'Identifier',
+      name: options.resultIdentifier
+    }
   }
 }

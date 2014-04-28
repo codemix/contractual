@@ -47,7 +47,7 @@ function main (ast, options, labels) {
 };
 
 function processLabel (node, options, returns) {
-  var canOptimise = returns.length === 1 && returns[0][1] === node.body,
+  var canOptimise = returns.length === 0 || (returns.length === 1 && returns[0][1] === node.body),
       contents = [];
 
   if (returns.length) {

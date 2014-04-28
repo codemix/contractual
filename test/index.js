@@ -32,5 +32,10 @@ global.COMPARE = function (a, b) {
       generatedB = GENERATE(processedB),
       parsedA = PARSE(generatedA),
       parsedB = PARSE(generatedB);
-  parsedA.should.eql(parsedB);
+  try {
+    parsedA.should.eql(parsedB);
+  }
+  catch (e) {
+    generatedA.should.equal(generatedB);
+  }
 };

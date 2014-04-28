@@ -14,13 +14,9 @@ function postcondition (ast, options, labels, func) {
     if (effects.length) {
       throw new ContractError('Postcondition contains side-effects! ', effects[0]);
     }
-
-    func.body.body.push(createReturnStatement(options));
-
-    return estraverse.replace(ast, {
+    return removeLabel(labels, func, options, estraverse.replace(ast, {
       enter: enter.bind(null, options)
-    })
-    .body.body;
+    }));
   post:
     Array.isArray(__result);
 };
@@ -53,9 +49,14 @@ function enter (options, node, parent) {
 
 
 
-function removeLabel (options, ast) {
+function removeLabel (labels, func, options, ast) {
   var body = ast.body.body;
-  return body.concat(createReturnStatement(options));
+  if (!labels.invariant) {
+    return body.concat(createReturnStatement(options));
+  }
+  else {
+    return body;
+  }
 }
 
 

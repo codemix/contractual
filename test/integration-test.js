@@ -105,5 +105,93 @@ describe('Integration Tests', function () {
     );
   });
 
+  it('simple invariant', function () {
+    COMPARE(
+      function z (a) {
+        invariant:
+          a > 0;
+        main:
+          return a++;
+      },
+      function z (a) {
+        OBLIGATIONS.invariant(a > 0);
+        var __result;
+        __result = a++;
+        OBLIGATIONS.invariant(a > 0);
+        return __result;
+      }
+    );
+  });
+
+  it('simple invariant, no return', function () {
+    COMPARE(
+      function z (a) {
+        invariant:
+          a > 0;
+        main:
+          a++;
+      },
+      function z (a) {
+        OBLIGATIONS.invariant(a > 0);
+        var __result;
+        a++;
+        OBLIGATIONS.invariant(a > 0);
+        return __result;
+      }
+    );
+  });
+
+  it('invariant with if statement', function () {
+    COMPARE(
+      function z (a) {
+        invariant:
+          if (a > 10) {
+            a < 100;
+          }
+        main:
+          return a++;
+      },
+      function z (a) {
+        if (a > 10) {
+          OBLIGATIONS.invariant(a < 100);
+        }
+        var __result;
+        __result = a++;
+        if (a > 10) {
+          OBLIGATIONS.invariant(a < 100);
+        }
+        return __result;
+      }
+    );
+  });
+
+  it('invariant with early return', function () {
+    COMPARE(
+      function z (a) {
+        invariant:
+          a > 0;
+        main:
+          if (a > 100) {
+            return;
+          }
+          return a++;
+      },
+      function z (a) {
+        OBLIGATIONS.invariant(a > 0);
+        var __result;
+        main: {
+          if (a > 100) {
+            __result = undefined;
+            break main;
+          }
+          __result = a++;
+          break main;
+        }
+        OBLIGATIONS.invariant(a > 0);
+        return __result;
+      }
+    );
+  });
+
 
 });
