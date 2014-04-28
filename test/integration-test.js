@@ -90,15 +90,13 @@ describe('Integration Tests', function () {
           __result > 10;
       },
       function z (a) {
-        var __result, __completed;
-        main: if (!__completed) {
+        var __result;
+        main: {
           if (a > 100) {
             __result = undefined;
-            __completed = true;
             break main;
           }
           __result = a++;
-          __completed = true;
           break main;
         }
         OBLIGATIONS.postcondition(__result > 10);
