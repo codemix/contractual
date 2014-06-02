@@ -193,5 +193,17 @@ describe('Integration Tests', function () {
     );
   });
 
+  it('regular expression in condition', function () {
+    COMPARE(
+      function z () {
+        pre: { true; }
+        main: { /a/.test('a'); }
+      },
+      function z () {
+        OBLIGATIONS.precondition(true);
+        /a/.test('a');
+      }
+    );
+  });
 
 });

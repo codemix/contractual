@@ -27,10 +27,12 @@ global.LIST = function (ast) {
 
 global.COMPARE = function (a, b) {
   var processedA = PROCESS(a.toString()),
-      processedB = PARSE(b.toString()),
-      generatedA = GENERATE(processedA),
-      generatedB = GENERATE(processedB),
-      parsedA = PARSE(generatedA),
+      processedB = PARSE(b.toString());
+
+  var generatedA = GENERATE(processedA),
+      generatedB = GENERATE(processedB);
+
+  var parsedA = PARSE(generatedA),
       parsedB = PARSE(generatedB);
   try {
     parsedA.should.eql(parsedB);
