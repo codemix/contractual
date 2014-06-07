@@ -1,3 +1,4 @@
+'use strict';
 var estraverse = require('estraverse');
 
 var defaults = {
@@ -45,9 +46,14 @@ function processProgram (ast, options) {
   main:
     var total = processFunctions(ast, options)[1];
     if (total && !options.global) {
-      ast.body.unshift(createRequireStatement(options));
+      if (ast.body[0].type === 'ExpressionStatement' && ast.body[0].expression.value === 'use strict') {
+        ast.body.splice(1, 0, createRequireStatement(options));
+      }
+      else {
+        ast.body.unshift(createRequireStatement(options));
+      }
     }
-    // regular expression haves are being hammered in some cases, this fixes that.
+    // regular expression are being hammered in some cases, this fixes that.
     // but it's a bandage. The root cause is not clear, it seems to be an issue with esprima.
     estraverse.traverse(ast, {
       leave: function (node) {
